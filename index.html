@@ -4,31 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 HR Strategic Alignment Dashboard</title>
-    <!-- 載入 Tailwind CSS -->
+    <!-- 載入核心工具 -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- 載入 React & ReactDOM -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- 載入 Babel 用於瀏覽器解析 JSX -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- 載入 Lucide Icons -->
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="https://unpkg.com/lucide-react@latest"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
         body { font-family: 'Inter', 'PingFang TC', sans-serif; }
+        .tab-transition { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
     </style>
 </head>
-<body class="bg-slate-50">
-    <div id="root"></div>
+<body class="bg-slate-50 text-slate-900">
+    <div id="root">
+        <!-- 初始讀取狀態，避免白屏感 -->
+        <div class="flex items-center justify-center h-screen">
+            <div class="text-slate-400 animate-pulse">系統加載中...</div>
+        </div>
+    </div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
-        const { 
-            Calendar, Users, Heart, Target, ChevronRight, 
-            AlertCircle, CheckCircle2, LayoutDashboard, MessageSquare 
-        } = lucideReact;
+        const { useState } = React;
+
+        // 預定義 SVG 圖標，確保不依賴外部圖標庫載入，100% 顯示
+        const Icons = {
+            Calendar: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/></svg>,
+            Users: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>,
+            Heart: () => <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.505 4.046 3 5.5L12 21Z"/></svg>,
+            Target: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>,
+            Alert: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" x2="12" y1="8" y2="12"/><line x1="12" x2="12.01" y1="16" y2="16"/></svg>,
+            Check: () => <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>,
+            Chevron: () => <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+        };
 
         const Badge = ({ children, variant = 'blue' }) => {
             const variants = {
@@ -39,7 +47,7 @@
                 slate: 'bg-slate-100 text-slate-700 border-slate-200',
             };
             return (
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${variants[variant]}`}>
+                <span className={`px-2 py-0.5 rounded-full text-xs font-bold border ${variants[variant]}`}>
                     {children}
                 </span>
             );
@@ -49,62 +57,62 @@
             const [activeTab, setActiveTab] = useState('roadmap');
 
             const RoadmapView = () => (
-                <div className="space-y-6">
+                <div className="space-y-6 animate-in fade-in duration-500">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {['Q1: 基礎建設期', 'Q2: 穩定運行期', 'Q3: 品牌深化期', 'Q4: 成果驗收期'].map((q, i) => (
-                            <div key={i} className="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
-                                <p className="text-xs font-bold text-indigo-600 mb-1">{q}</p>
-                                <p className="text-xs text-slate-600 leading-tight">
+                            <div key={i} className="bg-white border border-slate-200 p-4 rounded-2xl shadow-sm hover:border-indigo-300 transition-colors">
+                                <p className="text-xs font-black text-indigo-600 mb-1 uppercase tracking-wider">{q}</p>
+                                <p className="text-sm font-semibold text-slate-800 leading-tight">
                                     {i === 0 ? '招募與架構設計' : i === 1 ? '全員溝通與留才' : i === 2 ? '品牌內容發酵' : '跨部門成效整合'}
                                 </p>
                             </div>
                         ))}
                     </div>
 
-                    <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
-                        <table className="w-full text-left text-sm min-w-[600px]">
-                            <thead className="bg-slate-50 border-b border-slate-200">
-                                <tr>
-                                    <th className="px-6 py-4 font-semibold text-slate-700 w-32">分類</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Q1</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Q2</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Q3</th>
-                                    <th className="px-6 py-4 font-semibold text-slate-700">Q4</th>
-                                </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                                <tr>
-                                    <td className="px-6 py-4 font-bold text-blue-700 bg-blue-50/30">人才招募</td>
-                                    <td className="px-6 py-4" colSpan="2">
-                                        <div className="bg-blue-600 text-white p-2 rounded text-xs text-center shadow-sm">
-                                            採購主管職類招募 (約2場/週)
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4"></td>
-                                    <td className="px-6 py-4"></td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 font-bold text-amber-700 bg-amber-50/30">EX 活動類</td>
-                                    <td className="px-6 py-4"><div className="bg-amber-400 text-white p-2 rounded text-[10px] text-center">ESG 1</div></td>
-                                    <td className="px-6 py-4"></td>
-                                    <td className="px-6 py-4"><div className="flex gap-1 flex-wrap"><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">ESG 2</div><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">健康講座</div></div></td>
-                                    <td className="px-6 py-4"><div className="flex gap-1 flex-wrap"><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">電影日</div><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">ESG 3</div></div></td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 font-bold text-amber-700 bg-amber-50/30">EX 溝通類</td>
-                                    <td className="px-6 py-4"></td>
-                                    <td className="px-6 py-4"><div className="flex flex-col gap-1"><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">員工大會 / SKM1</div><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">EAP 續約</div></div></td>
-                                    <td className="px-6 py-4"><div className="flex flex-col gap-1"><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">Code of Conduct</div><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">SKM2 / Town Hall</div></div></td>
-                                    <td className="px-6 py-4"></td>
-                                </tr>
-                                <tr>
-                                    <td className="px-6 py-4 font-bold text-rose-700 bg-rose-50/30">EVP 品牌</td>
-                                    <td className="px-6 py-4"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">Framework 設計</div></td>
-                                    <td className="px-6 py-4"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">HR 內容上線</div></td>
-                                    <td className="px-6 py-4" colSpan="2"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">跨部門內容上線</div></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                        <div className="overflow-x-auto">
+                            <table className="w-full text-left text-sm min-w-[700px]">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-widest text-[10px]">分類項目</th>
+                                        <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Q1 (1-3月)</th>
+                                        <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Q2 (4-6月)</th>
+                                        <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Q3 (7-9月)</th>
+                                        <th className="px-6 py-4 font-bold text-slate-500 uppercase tracking-widest text-[10px]">Q4 (10-12月)</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    <tr>
+                                        <td className="px-6 py-5 font-black text-blue-600 bg-blue-50/20">人才招募</td>
+                                        <td className="px-6 py-5" colSpan="2">
+                                            <div className="bg-blue-600 text-white p-3 rounded-lg text-xs font-bold text-center shadow-lg shadow-blue-200">
+                                                採購主管職類招募 (約2場/週)
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5"></td>
+                                        <td className="px-6 py-5"></td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-6 py-5 font-black text-amber-600 bg-amber-50/20">EX 活動/溝通</td>
+                                        <td className="px-6 py-5"><div className="bg-amber-400 text-white p-2 rounded-lg text-[11px] font-bold text-center">ESG 1</div></td>
+                                        <td className="px-6 py-5"><div className="bg-amber-500 text-white p-2 rounded-lg text-[11px] font-bold text-center">員工大會 / SKM1</div></td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex flex-col gap-2">
+                                                <div className="bg-amber-400 text-white p-2 rounded-lg text-[11px] font-bold text-center">ESG 2 & 健康講座</div>
+                                                <div className="bg-amber-500 text-white p-2 rounded-lg text-[11px] font-bold text-center">Town Hall</div>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5"><div className="bg-amber-400 text-white p-2 rounded-lg text-[11px] font-bold text-center">電影日 & ESG 3</div></td>
+                                    </tr>
+                                    <tr>
+                                        <td className="px-6 py-5 font-black text-rose-600 bg-rose-50/20">EVP 品牌</td>
+                                        <td className="px-6 py-5"><div className="bg-rose-500 text-white p-3 rounded-lg text-xs font-bold text-center">Framework 設計</div></td>
+                                        <td className="px-6 py-5"><div className="bg-rose-500 text-white p-3 rounded-lg text-xs font-bold text-center">HR 內容上線</div></td>
+                                        <td className="px-6 py-5" colSpan="2"><div className="bg-rose-500 text-white p-3 rounded-lg text-xs font-bold text-center">跨部門內容整合上線</div></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
             );
@@ -113,105 +121,118 @@
                 const isEx = type === 'EX';
                 const data = isEx ? [
                     { id: 4, item: 'Skip Level Meeting', target: '完成2場以上 Skip Level Meeting', priority: '重要', aid: '與 Kai 確認名單與時間', status: '待辦' },
-                    { id: 5, item: '員工大會', target: '高滿意度完成年度溝通', priority: '重要', aid: '與 Phil 確認 Agenda', status: '籌備中' },
-                    { id: 7, item: 'Code of Conduct', target: '產出合適議題並順利完成', priority: '重要', aid: '確認專案主導權責', status: '待辦' },
+                    { id: 5, item: '員工大會', target: '確保經營層訊息透明傳達', priority: '重要', aid: '與 Phil 確認 Agenda', status: '規劃中' },
+                    { id: 7, item: 'Code of Conduct', target: '產出合適議題並強化文化認同', priority: '重要', aid: '確認專案主導權責', status: '待辦' },
                 ] : [
-                    { id: 1, item: 'EVP Framework 設計', target: '3/20前完成跨組溝通與發佈流程', priority: '緊急/重要', aid: '核定品牌核心原則', status: '執行中' },
-                    { id: 2, item: 'HR 內容上線', target: '6/30前官網5篇+社群5篇', priority: '重要', aid: '協助提供主管觀察素材', status: '執行中' },
-                    { id: 3, item: '跨部門內容上線', target: '11月後產出部門亮點專訪', priority: '普通', aid: '跨部門主管協調', status: '規劃中' },
+                    { id: 1, item: 'EVP Framework 設計', target: '3/20前完成跨組溝通與標準流程', priority: '緊急/重要', aid: '核定品牌核心原則', status: '進行中' },
+                    { id: 2, item: 'HR 內容上線', target: '6/30前官網+社群10篇內容產出', priority: '重要', aid: '協助提供主管觀察素材', status: '進行中' },
+                    { id: 3, item: '跨部門內容上線', target: '11月後展開部門亮點訪談', priority: '普通', aid: '協調跨部門主管時間', status: '規劃中' },
                 ];
 
                 return (
-                    <div className="space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                                <div className={`p-3 rounded-full ${isEx ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'}`}>
-                                    <Target size={24} />
+                    <div className="space-y-6 animate-in slide-in-from-bottom duration-500">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+                                <div className={`p-3 rounded-xl ${isEx ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'}`}>
+                                    <Icons.Target />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">當前進度</p>
-                                    <p className="text-xl font-bold">{isEx ? '35%' : '20%'}</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">執行進度</p>
+                                    <p className="text-2xl font-black text-slate-800">{isEx ? '35%' : '20%'}</p>
                                 </div>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
-                                    <AlertCircle size={24} />
+                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+                                <div className="p-3 rounded-xl bg-blue-100 text-blue-600">
+                                    <Icons.Alert />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">待 Phil 核決</p>
-                                    <p className="text-xl font-bold">{data.length} 項</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">待決事項</p>
+                                    <p className="text-2xl font-black text-slate-800">{data.length} 件</p>
                                 </div>
                             </div>
-                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
-                                <div className="p-3 rounded-full bg-emerald-100 text-emerald-600">
-                                    <CheckCircle2 size={24} />
+                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-5">
+                                <div className="p-3 rounded-xl bg-emerald-100 text-emerald-600">
+                                    <Icons.Check />
                                 </div>
                                 <div>
-                                    <p className="text-xs text-slate-500">已達成指標</p>
-                                    <p className="text-xl font-bold">2 項</p>
+                                    <p className="text-[10px] font-bold text-slate-400 uppercase">已完成里程碑</p>
+                                    <p className="text-2xl font-black text-slate-800">2 項</p>
                                 </div>
                             </div>
                         </div>
 
-                        <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
-                            <table className="w-full text-left text-sm min-w-[700px]">
-                                <thead className="bg-slate-50 border-b border-slate-200">
-                                    <tr>
-                                        <th className="px-6 py-4 font-semibold text-slate-700">工作項目</th>
-                                        <th className="px-6 py-4 font-semibold text-slate-700">目標與 KPI</th>
-                                        <th className="px-6 py-4 font-semibold text-slate-700">優先序</th>
-                                        <th className="px-6 py-4 font-semibold text-slate-700 text-indigo-600">需要 Phil 協助</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-slate-100">
-                                    {data.map((row) => (
-                                        <tr key={row.id} className="hover:bg-slate-50/50">
-                                            <td className="px-6 py-4 font-medium text-slate-900">{row.item}</td>
-                                            <td className="px-6 py-4 text-slate-600">{row.target}</td>
-                                            <td className="px-6 py-4">
-                                                <Badge variant={row.priority.includes('緊急') ? 'rose' : 'amber'}>
-                                                    {row.priority}
-                                                </Badge>
-                                            </td>
-                                            <td className="px-6 py-4 font-medium text-indigo-600">
-                                                <div className="flex items-center gap-1">
-                                                    <ChevronRight size={14} /> {row.aid}
-                                                </div>
-                                            </td>
+                        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left text-sm min-w-[750px]">
+                                    <thead className="bg-slate-50 border-b border-slate-200">
+                                        <tr>
+                                            <th className="px-6 py-4 font-bold text-slate-500 text-[10px] uppercase">核心工作項目</th>
+                                            <th className="px-6 py-4 font-bold text-slate-500 text-[10px] uppercase">目標 / KPI</th>
+                                            <th className="px-6 py-4 font-bold text-slate-500 text-[10px] uppercase">優先權</th>
+                                            <th className="px-6 py-4 font-bold text-indigo-600 text-[10px] uppercase">需要 Phil 的關鍵協助</th>
                                         </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                                    </thead>
+                                    <tbody className="divide-y divide-slate-100">
+                                        {data.map((row) => (
+                                            <tr key={row.id} className="hover:bg-slate-50/50 transition-colors">
+                                                <td className="px-6 py-5 font-bold text-slate-900">{row.item}</td>
+                                                <td className="px-6 py-5 text-slate-600 font-medium">{row.target}</td>
+                                                <td className="px-6 py-5">
+                                                    <Badge variant={row.priority.includes('緊急') ? 'rose' : 'amber'}>
+                                                        {row.priority}
+                                                    </Badge>
+                                                </td>
+                                                <td className="px-6 py-5 font-bold text-indigo-600">
+                                                    <div className="flex items-center gap-2">
+                                                        <Icons.Chevron /> {row.aid}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 );
             };
 
             return (
-                <div className="min-h-screen p-4 md:p-8">
-                    <div className="max-w-6xl mx-auto">
-                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight underline decoration-indigo-500 decoration-4 underline-offset-8">2026 HR STRATEGIC ALIGNMENT</h1>
-                                <p className="text-slate-500 mt-4">年度工作目標與資源對焦 Dashboard</p>
-                            </div>
-                            <div className="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
-                                <button onClick={() => setActiveTab('roadmap')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'roadmap' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>Roadmap</button>
-                                <button onClick={() => setActiveTab('ex')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'ex' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>EX 計畫</button>
-                                <button onClick={() => setActiveTab('evp')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'evp' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>EVP 計畫</button>
-                            </div>
+                <div className="min-h-screen p-6 md:p-12 max-w-7xl mx-auto">
+                    {/* Header */}
+                    <header className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-6">
+                        <div className="space-y-2">
+                            <div className="inline-block bg-indigo-600 text-white text-[10px] font-black px-2 py-1 rounded mb-2">STRATEGIC ALIGNMENT</div>
+                            <h1 className="text-4xl font-black text-slate-900 tracking-tighter uppercase">2026 HR MASTER PLAN</h1>
+                            <p className="text-slate-400 font-medium">年度戰略目標對焦儀表板 · Prepared for Phil</p>
                         </div>
+                        
+                        <nav className="flex bg-white p-1.5 rounded-2xl shadow-xl shadow-indigo-100/50 border border-slate-200 overflow-x-auto no-scrollbar">
+                            <button onClick={() => setActiveTab('roadmap')} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black whitespace-nowrap tab-transition ${activeTab === 'roadmap' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                <Icons.Calendar /> Roadmap
+                            </button>
+                            <button onClick={() => setActiveTab('ex')} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black whitespace-nowrap tab-transition ${activeTab === 'ex' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                <Icons.Heart /> EX 計畫
+                            </button>
+                            <button onClick={() => setActiveTab('evp')} className={`flex items-center gap-2 px-6 py-2.5 rounded-xl text-sm font-black whitespace-nowrap tab-transition ${activeTab === 'evp' ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-200' : 'text-slate-500 hover:bg-slate-50'}`}>
+                                <Icons.Users /> EVP 品牌
+                            </button>
+                        </nav>
+                    </header>
 
+                    {/* Main Content */}
+                    <main>
                         {activeTab === 'roadmap' ? <RoadmapView /> : <PlanDetailView type={activeTab.toUpperCase()} />}
+                    </main>
 
-                        <div className="mt-12 pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-slate-400 text-xs gap-4">
-                            <p>© 2026 HR Strategic Planning | Prepared for Phil</p>
-                            <div className="flex gap-4">
-                                <span className="flex items-center gap-1"><CheckCircle2 size={12}/> Confidential</span>
-                                <span className="flex items-center gap-1"><CheckCircle2 size={12}/> Internal Use</span>
-                            </div>
+                    {/* Footer */}
+                    <footer className="mt-16 pt-8 border-t border-slate-200 flex flex-col sm:flex-row justify-between items-center text-slate-400 text-[10px] font-bold tracking-widest gap-4">
+                        <p>AUTHENTIC HR CONSULTING © 2026</p>
+                        <div className="flex gap-8">
+                            <span className="uppercase">CONFIDENTIAL DATA</span>
+                            <span className="uppercase">INTERNAL USE ONLY</span>
                         </div>
-                    </div>
+                    </footer>
                 </div>
             );
         };
