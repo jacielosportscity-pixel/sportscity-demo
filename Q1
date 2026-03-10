@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 HR Strategic Alignment Dashboard</title>
+    <!-- 載入 Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 載入 React & ReactDOM -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <!-- 載入 Babel 用於瀏覽器解析 JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 載入 Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://unpkg.com/lucide-react@latest"></script>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap');
+        body { font-family: 'Inter', 'PingFang TC', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+        const { 
+            Calendar, Users, Heart, Target, ChevronRight, 
+            AlertCircle, CheckCircle2, LayoutDashboard, MessageSquare 
+        } = lucideReact;
+
+        const Badge = ({ children, variant = 'blue' }) => {
+            const variants = {
+                blue: 'bg-blue-100 text-blue-700 border-blue-200',
+                amber: 'bg-amber-100 text-amber-700 border-amber-200',
+                rose: 'bg-rose-100 text-rose-700 border-rose-200',
+                emerald: 'bg-emerald-100 text-emerald-700 border-emerald-200',
+                slate: 'bg-slate-100 text-slate-700 border-slate-200',
+            };
+            return (
+                <span className={`px-2 py-0.5 rounded-full text-xs font-medium border ${variants[variant]}`}>
+                    {children}
+                </span>
+            );
+        };
+
+        const App = () => {
+            const [activeTab, setActiveTab] = useState('roadmap');
+
+            const RoadmapView = () => (
+                <div className="space-y-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {['Q1: 基礎建設期', 'Q2: 穩定運行期', 'Q3: 品牌深化期', 'Q4: 成果驗收期'].map((q, i) => (
+                            <div key={i} className="bg-white border border-slate-200 p-3 rounded-xl shadow-sm">
+                                <p className="text-xs font-bold text-indigo-600 mb-1">{q}</p>
+                                <p className="text-xs text-slate-600 leading-tight">
+                                    {i === 0 ? '招募與架構設計' : i === 1 ? '全員溝通與留才' : i === 2 ? '品牌內容發酵' : '跨部門成效整合'}
+                                </p>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+                        <table className="w-full text-left text-sm min-w-[600px]">
+                            <thead className="bg-slate-50 border-b border-slate-200">
+                                <tr>
+                                    <th className="px-6 py-4 font-semibold text-slate-700 w-32">分類</th>
+                                    <th className="px-6 py-4 font-semibold text-slate-700">Q1</th>
+                                    <th className="px-6 py-4 font-semibold text-slate-700">Q2</th>
+                                    <th className="px-6 py-4 font-semibold text-slate-700">Q3</th>
+                                    <th className="px-6 py-4 font-semibold text-slate-700">Q4</th>
+                                </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                                <tr>
+                                    <td className="px-6 py-4 font-bold text-blue-700 bg-blue-50/30">人才招募</td>
+                                    <td className="px-6 py-4" colSpan="2">
+                                        <div className="bg-blue-600 text-white p-2 rounded text-xs text-center shadow-sm">
+                                            採購主管職類招募 (約2場/週)
+                                        </div>
+                                    </td>
+                                    <td className="px-6 py-4"></td>
+                                    <td className="px-6 py-4"></td>
+                                </tr>
+                                <tr>
+                                    <td className="px-6 py-4 font-bold text-amber-700 bg-amber-50/30">EX 活動類</td>
+                                    <td className="px-6 py-4"><div className="bg-amber-400 text-white p-2 rounded text-[10px] text-center">ESG 1</div></td>
+                                    <td className="px-6 py-4"></td>
+                                    <td className="px-6 py-4"><div className="flex gap-1 flex-wrap"><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">ESG 2</div><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">健康講座</div></div></td>
+                                    <td className="px-6 py-4"><div className="flex gap-1 flex-wrap"><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">電影日</div><div className="bg-amber-400 text-white p-1 rounded text-[10px] flex-1 text-center">ESG 3</div></div></td>
+                                </tr>
+                                <tr>
+                                    <td className="px-6 py-4 font-bold text-amber-700 bg-amber-50/30">EX 溝通類</td>
+                                    <td className="px-6 py-4"></td>
+                                    <td className="px-6 py-4"><div className="flex flex-col gap-1"><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">員工大會 / SKM1</div><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">EAP 續約</div></div></td>
+                                    <td className="px-6 py-4"><div className="flex flex-col gap-1"><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">Code of Conduct</div><div className="bg-amber-500 text-white p-1 rounded text-[10px] text-center">SKM2 / Town Hall</div></div></td>
+                                    <td className="px-6 py-4"></td>
+                                </tr>
+                                <tr>
+                                    <td className="px-6 py-4 font-bold text-rose-700 bg-rose-50/30">EVP 品牌</td>
+                                    <td className="px-6 py-4"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">Framework 設計</div></td>
+                                    <td className="px-6 py-4"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">HR 內容上線</div></td>
+                                    <td className="px-6 py-4" colSpan="2"><div className="bg-rose-500 text-white p-2 rounded text-xs text-center">跨部門內容上線</div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            );
+
+            const PlanDetailView = ({ type }) => {
+                const isEx = type === 'EX';
+                const data = isEx ? [
+                    { id: 4, item: 'Skip Level Meeting', target: '完成2場以上 Skip Level Meeting', priority: '重要', aid: '與 Kai 確認名單與時間', status: '待辦' },
+                    { id: 5, item: '員工大會', target: '高滿意度完成年度溝通', priority: '重要', aid: '與 Phil 確認 Agenda', status: '籌備中' },
+                    { id: 7, item: 'Code of Conduct', target: '產出合適議題並順利完成', priority: '重要', aid: '確認專案主導權責', status: '待辦' },
+                ] : [
+                    { id: 1, item: 'EVP Framework 設計', target: '3/20前完成跨組溝通與發佈流程', priority: '緊急/重要', aid: '核定品牌核心原則', status: '執行中' },
+                    { id: 2, item: 'HR 內容上線', target: '6/30前官網5篇+社群5篇', priority: '重要', aid: '協助提供主管觀察素材', status: '執行中' },
+                    { id: 3, item: '跨部門內容上線', target: '11月後產出部門亮點專訪', priority: '普通', aid: '跨部門主管協調', status: '規劃中' },
+                ];
+
+                return (
+                    <div className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                                <div className={`p-3 rounded-full ${isEx ? 'bg-amber-100 text-amber-600' : 'bg-rose-100 text-rose-600'}`}>
+                                    <Target size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">當前進度</p>
+                                    <p className="text-xl font-bold">{isEx ? '35%' : '20%'}</p>
+                                </div>
+                            </div>
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                                <div className="p-3 rounded-full bg-blue-100 text-blue-600">
+                                    <AlertCircle size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">待 Phil 核決</p>
+                                    <p className="text-xl font-bold">{data.length} 項</p>
+                                </div>
+                            </div>
+                            <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center gap-4">
+                                <div className="p-3 rounded-full bg-emerald-100 text-emerald-600">
+                                    <CheckCircle2 size={24} />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-slate-500">已達成指標</p>
+                                    <p className="text-xl font-bold">2 項</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white border border-slate-200 rounded-xl overflow-x-auto shadow-sm">
+                            <table className="w-full text-left text-sm min-w-[700px]">
+                                <thead className="bg-slate-50 border-b border-slate-200">
+                                    <tr>
+                                        <th className="px-6 py-4 font-semibold text-slate-700">工作項目</th>
+                                        <th className="px-6 py-4 font-semibold text-slate-700">目標與 KPI</th>
+                                        <th className="px-6 py-4 font-semibold text-slate-700">優先序</th>
+                                        <th className="px-6 py-4 font-semibold text-slate-700 text-indigo-600">需要 Phil 協助</th>
+                                    </tr>
+                                </thead>
+                                <tbody className="divide-y divide-slate-100">
+                                    {data.map((row) => (
+                                        <tr key={row.id} className="hover:bg-slate-50/50">
+                                            <td className="px-6 py-4 font-medium text-slate-900">{row.item}</td>
+                                            <td className="px-6 py-4 text-slate-600">{row.target}</td>
+                                            <td className="px-6 py-4">
+                                                <Badge variant={row.priority.includes('緊急') ? 'rose' : 'amber'}>
+                                                    {row.priority}
+                                                </Badge>
+                                            </td>
+                                            <td className="px-6 py-4 font-medium text-indigo-600">
+                                                <div className="flex items-center gap-1">
+                                                    <ChevronRight size={14} /> {row.aid}
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                );
+            };
+
+            return (
+                <div className="min-h-screen p-4 md:p-8">
+                    <div className="max-w-6xl mx-auto">
+                        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
+                            <div>
+                                <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight underline decoration-indigo-500 decoration-4 underline-offset-8">2026 HR STRATEGIC ALIGNMENT</h1>
+                                <p className="text-slate-500 mt-4">年度工作目標與資源對焦 Dashboard</p>
+                            </div>
+                            <div className="flex bg-white p-1 rounded-xl shadow-sm border border-slate-200 overflow-x-auto">
+                                <button onClick={() => setActiveTab('roadmap')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'roadmap' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>Roadmap</button>
+                                <button onClick={() => setActiveTab('ex')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'ex' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>EX 計畫</button>
+                                <button onClick={() => setActiveTab('evp')} className={`px-4 py-2 rounded-lg text-sm font-bold whitespace-nowrap transition-all ${activeTab === 'evp' ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-600 hover:bg-slate-100'}`}>EVP 計畫</button>
+                            </div>
+                        </div>
+
+                        {activeTab === 'roadmap' ? <RoadmapView /> : <PlanDetailView type={activeTab.toUpperCase()} />}
+
+                        <div className="mt-12 pt-6 border-t border-slate-200 flex flex-col md:flex-row justify-between items-center text-slate-400 text-xs gap-4">
+                            <p>© 2026 HR Strategic Planning | Prepared for Phil</p>
+                            <div className="flex gap-4">
+                                <span className="flex items-center gap-1"><CheckCircle2 size={12}/> Confidential</span>
+                                <span className="flex items-center gap-1"><CheckCircle2 size={12}/> Internal Use</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
